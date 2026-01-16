@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPOs: Number and Proceeds</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fff;
+            padding: 20px 40px;
+        }
+        h1 {
+            color: #003366;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .toggle-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+        .toggle-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #333;
+        }
+        .toggle-option input[type="radio"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #003366;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+        }
+        .toggle-option input[type="radio"]:checked {
+            background: #003366;
+            border-color: #003366;
+        }
+        .toggle-option input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+        }
+        #chart {
+            width: 100%;
+            height: 600px;
+        }
+        .source {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .source a {
+            color: #003366;
+        }
+    </style>
+</head>
+<body>
+    <h1>IPOs: Number and Proceeds</h1>
+
+    <div class="toggle-container">
+        <label class="toggle-option">
+            <input type="radio" name="view" value="annual" checked>
+            <span><strong>Annual</strong> (2000 - 2024)</span>
+        </label>
+        <label class="toggle-option">
+            <input type="radio" name="view" value="quarterly">
+            <span><strong>Quarterly</strong> (2000:Q1 - 2025:Q3)</span>
+        </label>
+    </div>
+
+    <div id="chart"></div>
+
+    <p class="source">Data source: <a href="https://www.sec.gov/data-research/statistics-data-visualizations/initial-public-offerings-ipos/ipos-number-proceeds" target="_blank">U.S. Securities and Exchange Commission (SEC)</a></p>
+
+    <script>
+        // Annual Data (2000-2024)
+        const annualData = {
+            years: ['2000','2001','2002','2003','2004','2005','2006','2007','2008','2009','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],
+            numIPOs: [459,143,171,138,319,302,282,348,60,86,221,228,235,316,355,226,137,228,271,248,492,1078,202,169,246],
+            totalProceeds: [84276.4,46583.3,42880.7,44576.2,71237.3,60546.4,60076.4,91533.9,28764.1,25351.9,40733.5,44581,57356.7,72773.6,93147.6,38205.3,24106.5,45919.2,57711.2,63555.3,164637.2,302710.3,21555.5,23763.2,39212.6],
+            avgProceeds: [183.6,325.8,250.8,323,223.3,200.5,213,263,479.4,294.8,184.3,195.5,244.1,230.3,262.4,169,176,201.4,213,256.3,334.6,280.8,106.7,140.6,159.4],
+            medianProceeds: [78,90,90,171.8,111.8,116.8,106.9,125.4,125.5,146.6,100,90.5,85.5,103.5,91.8,81,94.5,120,104.5,128.2,202,200,60,15.2,53.6]
+        };
+
+        // Quarterly Data (2000:Q1 - 2025:Q3)
+        const quarterlyData = {
+            quarters: ['2000:Q1','2000:Q2','2000:Q3','2000:Q4','2001:Q1','2001:Q2','2001:Q3','2001:Q4','2002:Q1','2002:Q2','2002:Q3','2002:Q4','2003:Q1','2003:Q2','2003:Q3','2003:Q4','2004:Q1','2004:Q2','2004:Q3','2004:Q4','2005:Q1','2005:Q2','2005:Q3','2005:Q4','2006:Q1','2006:Q2','2006:Q3','2006:Q4','2007:Q1','2007:Q2','2007:Q3','2007:Q4','2008:Q1','2008:Q2','2008:Q3','2008:Q4','2009:Q1','2009:Q2','2009:Q3','2009:Q4','2010:Q1','2010:Q2','2010:Q3','2010:Q4','2011:Q1','2011:Q2','2011:Q3','2011:Q4','2012:Q1','2012:Q2','2012:Q3','2012:Q4','2013:Q1','2013:Q2','2013:Q3','2013:Q4','2014:Q1','2014:Q2','2014:Q3','2014:Q4','2015:Q1','2015:Q2','2015:Q3','2015:Q4','2016:Q1','2016:Q2','2016:Q3','2016:Q4','2017:Q1','2017:Q2','2017:Q3','2017:Q4','2018:Q1','2018:Q2','2018:Q3','2018:Q4','2019:Q1','2019:Q2','2019:Q3','2019:Q4','2020:Q1','2020:Q2','2020:Q3','2020:Q4','2021:Q1','2021:Q2','2021:Q3','2021:Q4','2022:Q1','2022:Q2','2022:Q3','2022:Q4','2023:Q1','2023:Q2','2023:Q3','2023:Q4','2024:Q1','2024:Q2','2024:Q3','2024:Q4','2025:Q1','2025:Q2','2025:Q3'],
+            numIPOs: [144,106,141,68,35,36,27,45,34,52,28,57,12,18,43,65,64,75,78,102,62,74,93,73,62,71,46,103,80,107,60,101,28,18,13,1,5,20,22,39,41,48,49,83,62,79,35,52,61,59,49,66,60,88,77,91,90,102,79,84,48,83,49,46,12,40,45,40,38,68,50,72,60,76,70,65,46,82,58,62,45,66,173,208,416,192,201,269,87,43,48,24,45,37,45,42,44,58,63,81,84,96,110],
+            totalProceeds: [26799.2,27598,17759,12120.2,8673.6,18270,5260.3,14379.5,12401.8,9845.1,10658.7,9975,6094.4,12579.3,11676.7,14225.7,20251.7,14726.9,16240.4,20018.5,18751.8,14706.4,15961.8,11126.3,10617.4,13784.1,10921.6,24753.4,24236.6,31718.3,15830.8,19748.2,22526.5,4785,1326.5,126,1123.6,2617.7,7008.1,14602.5,5875,7355.4,8210.1,19293,16393.6,15268.3,4990.2,7928.9,7324.9,26522.6,10903.4,12605.8,14260.3,19607.3,12579.2,26326.7,12910.8,22196.1,40614.2,17426.5,7198.5,14102.1,9054,7850.6,1317.4,6940.5,7397.7,8450.9,12475.6,13303.5,6946.6,13193.5,17745.5,15962.4,13979.1,10024.3,9150.5,29786.1,14729.3,9889.5,13473.6,23120.1,62504.7,65538.8,132902.2,56383.2,46923.2,66501.8,12731.5,3541.9,3222.9,2059.1,3130.5,7665.5,8808.8,4158.5,8705.6,10724.3,11171.2,8611.5,11730,15809.6,22104.5],
+            avgProceeds: [186.1,260.4,126,178.2,247.8,507.5,194.8,319.5,364.8,189.3,380.7,175,507.9,698.9,271.6,218.9,316.4,196.4,208.2,196.3,302.4,198.7,171.6,152.4,171.2,194.1,237.4,240.3,303,296.4,263.8,195.5,804.5,265.8,102,126,224.7,130.9,318.6,374.4,143.3,153.2,167.6,232.4,264.4,193.3,142.6,152.5,120.1,449.5,222.5,191,237.7,222.8,163.4,289.3,143.5,217.6,514.1,207.5,150,169.9,184.8,170.7,109.8,173.5,164.4,211.3,328.3,195.6,138.9,183.2,295.8,210,199.7,154.2,198.9,363.2,254,159.5,299.4,350.3,361.3,315.1,319.5,293.7,233.4,247.2,146.3,82.4,67.1,85.8,69.6,207.2,195.8,99,197.9,184.9,177.3,106.3,139.6,164.7,201],
+            medianProceeds: [90,61.5,75.5,73.3,67,124.8,93.8,114,116.1,97.3,102.8,75,324.8,597.5,208.5,119,120.4,87.5,109.7,131.8,177.2,121.5,96,116,113.8,100,142.4,101.5,122.8,121,163.2,120,110,189.5,55,126,172.5,109.6,225,154.6,127.2,90.8,84.8,100,75,100.5,78.8,90.5,73.3,89.6,90.9,96,77.5,89,106,132.9,85,95.1,68.4,117.5,82.3,96,120,57.4,80.5,102.4,90,116.6,174.6,121.5,88.1,120,135.4,110.3,101.3,66.5,102,125,174.5,92.6,129.6,216.3,225,200,250,200,175.5,172.5,100,40.6,15.3,50,16,18.9,10,18,79.3,77.5,50,12,15.3,150,100]
+        };
+
+        // ColorBrewer Paired palette
+        const colors = {
+            bars: '#1f78b4',
+            totalProceeds: '#ff7f00'
+        };
+
+        function createChart(viewType) {
+            const data = viewType === 'annual' ? annualData : quarterlyData;
+            const xLabels = viewType === 'annual' ? data.years : data.quarters;
+
+            // Bar trace for Number of IPOs
+            const barTrace = {
+                x: xLabels,
+                y: data.numIPOs,
+                type: 'bar',
+                name: 'Number of IPOs',
+                marker: { color: colors.bars },
+                yaxis: 'y',
+                hovertemplate: 'Number of IPOs: %{y}<extra></extra>'
+            };
+
+            // Line trace for Total Proceeds
+            const totalProceedsTrace = {
+                x: xLabels,
+                y: data.totalProceeds,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Total Proceeds (US$ Millions)',
+                line: { color: colors.totalProceeds, width: 2 },
+                marker: { color: colors.totalProceeds, size: 7 },
+                yaxis: 'y2',
+                hovertemplate: 'Total Proceeds: $%{y:,.1f}M<extra></extra>'
+            };
+
+            // Hidden traces for Average and Median - invisible but show in hover
+            const avgProceedsTrace = {
+                x: xLabels,
+                y: data.avgProceeds,
+                type: 'scatter',
+                mode: 'markers',
+                name: 'Average Proceeds (US$ Millions)',
+                marker: { color: 'rgba(0,0,0,0)', size: 1 },
+                yaxis: 'y2',
+                showlegend: false,
+                hovertemplate: 'Average Proceeds: $%{y:,.1f}M<extra></extra>'
+            };
+
+            const medianProceedsTrace = {
+                x: xLabels,
+                y: data.medianProceeds,
+                type: 'scatter',
+                mode: 'markers',
+                name: 'Median Proceeds (US$ Millions)',
+                marker: { color: 'rgba(0,0,0,0)', size: 1 },
+                yaxis: 'y2',
+                showlegend: false,
+                hovertemplate: 'Median Proceeds: $%{y:,.1f}M<extra></extra>'
+            };
+
+            const layout = {
+                showlegend: true,
+                legend: {
+                    orientation: 'h',
+                    x: 0,
+                    y: 1.12,
+                    font: { size: 11 }
+                },
+                margin: { t: 80, b: 80, l: 70, r: 80 },
+                xaxis: {
+                    tickangle: viewType === 'quarterly' ? 45 : 0,
+                    tickfont: { size: 10 },
+                    dtick: viewType === 'quarterly' ? 4 : 1,
+                    rangeslider: {
+                        visible: true,
+                        thickness: 0.06,
+                        bgcolor: '#f0f0f0',
+                        bordercolor: '#ccc',
+                        borderwidth: 1
+                    },
+                    fixedrange: false
+                },
+                yaxis: {
+                    title: { text: 'Number of IPOs', font: { size: 12 } },
+                    side: 'left',
+                    showgrid: true,
+                    gridcolor: '#e0e0e0',
+                    zeroline: true,
+                    fixedrange: true
+                },
+                yaxis2: {
+                    title: { text: 'Proceeds (US$ Millions)', font: { size: 12 } },
+                    side: 'right',
+                    overlaying: 'y',
+                    showgrid: false,
+                    tickformat: ',.0f',
+                    fixedrange: true
+                },
+                hovermode: 'x unified',
+                plot_bgcolor: 'white',
+                paper_bgcolor: 'white',
+                bargap: 0.3
+            };
+
+            const config = {
+                responsive: true,
+                displayModeBar: true,
+                modeBarButtonsToRemove: ['pan2d', 'select2d', 'lasso2d', 'autoScale2d', 'zoom2d', 'zoomIn2d', 'zoomOut2d'],
+                displaylogo: false,
+                scrollZoom: false
+            };
+
+            Plotly.newPlot('chart', [barTrace, totalProceedsTrace, avgProceedsTrace, medianProceedsTrace], layout, config);
+        }
+
+        // Initialize with annual view
+        createChart('annual');
+
+        // Add event listeners for toggle
+        document.querySelectorAll('input[name="view"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                createChart(e.target.value);
+            });
+        });
+    </script>
+</body>
+</html>
